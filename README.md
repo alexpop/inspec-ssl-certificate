@@ -4,7 +4,7 @@ This is a library InSpec profile. The controls you find in the `./controls` dire
 
 ## Usage
 
-- Add this to your profile's inspec.yml
+- Add this to your profile's inspec.yml to ensure a correct version of InSpec and profile dependency:
 ```
 supports:
   - inspec: '>= 1.0.0'

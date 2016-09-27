@@ -1,0 +1,3 @@
+# Ignore everything listed here
+inspec.lock
+Gemfile.lock

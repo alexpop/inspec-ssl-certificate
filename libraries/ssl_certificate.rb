@@ -8,7 +8,7 @@ class SslCertificate < Inspec.resource(1)
 
   desc "
     The `ssl_certificate` allows to test SSL Certificate properties like:
-    Days before expire, encryption strength, hash algorithm, etc
+    days before expire, key size, hash algorithm, trust, etc
   "
 
   example "
@@ -119,6 +119,10 @@ class SslCertificate < Inspec.resource(1)
 
   def expiration
     return @cert.not_after
+  end
+
+  def to_s
+    return "ssl_certificate #{@host}:#{@port}"
   end
 
   private
