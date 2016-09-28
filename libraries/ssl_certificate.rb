@@ -122,7 +122,7 @@ class SslCertificate < Inspec.resource(1)
   end
 
   def to_s
-    return "ssl_certificate #{@host}:#{@port}"
+    return "ssl_certificate on #{@host}:#{@port}"
   end
 
   private

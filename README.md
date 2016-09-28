@@ -4,12 +4,14 @@ This is a library InSpec profile. The controls you find in the `./controls` dire
 
 ## Usage
 
-- Add this to your profile's inspec.yml to ensure a correct version of InSpec and profile dependency:
+- Add this to your profile's inspec.yml to ensure a correct inspec version and define the profile dependency:
 ```
 supports:
-  - inspec: '>= 1.0.0'
+  - inspec: '~> 1.0'
 depends:
-  - name: apop/ssl-certificate-profile
+  - name: ssl-certificate-profile
+    git: https://github.com/alexpop/ssl-certificate-profile
+    version: '~> 0.1'
 ```
 - Use the `ssl_certificate` resource in your profiles, the same way you'd use core InSpec resources (file, service, directory, command, etc).
 

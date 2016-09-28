@@ -5,6 +5,6 @@ copyright: Alex Pop
 copyright_email: not-given-here@example.com
 license: Apache 2 license
 summary: InSpec profile providing an ssl_certificate resource and sample controls
-version: 0.1.3
+version: 0.1.4
 supports:
-  - inspec: '>= 1.0.0'
+  - inspec: '~> 1.0'
