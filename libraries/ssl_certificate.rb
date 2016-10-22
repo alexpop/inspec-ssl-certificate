@@ -1,3 +1,21 @@
+# encoding: utf-8
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# InSpec custom resource for SSL Certificates handling
+# Author: Alex Pop
+# Source from https://github.com/alexpop/ssl-certificate-profile
+
 require 'uri'
 require 'openssl'
 require 'net/https'
@@ -12,12 +30,14 @@ class SslCertificate < Inspec.resource(1)
   "
 
   example "
+    # Use defaults: port: 443 and hostname of the target
     describe ssl_certificate do
       it { should exist }
       its('signature_algorithm' { should cmp 'sha256WithRSAEncryption' }
       its('key_size') { should be >= 2048 }
     end
 
+    # Be explicit with the targeted host and port
     describe ssl_certificate(host: 'github.com', port: 443) do
       it { should exist }
       it { should be_trusted }
@@ -37,12 +57,6 @@ class SslCertificate < Inspec.resource(1)
     case opts.class.to_s
     when 'NilClass'
       @port = 443
-    # when 'Fixnum'
-    #   @port = opts
-    # when 'String'
-    #   # maybe support 'example.com:8443' here
-    #   @host = opts
-    #   @port = 443
     when 'Hash'
       if opts[:path]
         @path = opts[:path]
@@ -65,15 +79,7 @@ class SslCertificate < Inspec.resource(1)
       if @host.nil?
         return skip_resource "Cannot determine hostname to check for inspec.backend(#{inspec.backend.class.to_s}). Please specify a :host parameter"
       end
-      begin
-        @cert = get_cert(verify: true)
-      rescue OpenSSL::SSL::SSLError => e
-        @ssl_error = e.message.gsub(/"/, "'")
-        @cert = get_cert(verify: false)
-      rescue Exception => e
-        # Mark test as skipped if we can't get an SSL certificate
-        return skip_resource "Cannot connect to #{@host}:#{@port}, #{e.message}"
-      end
+      @cert = get_cert(verify: true)
     end
   end
 
@@ -129,12 +135,23 @@ class SslCertificate < Inspec.resource(1)
 
   # Retrieve an OpenSSL::X509::Certificate via TCP
   def get_cert(verify: true)
-    @http = Net::HTTP.new(@host, @port)
-    @http.use_ssl = true
-    @http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless verify
-    @http.open_timeout = @timeout if @timeout
-    @http.start do |h|
-      return h.peer_cert
+    begin
+      @http = Net::HTTP.new(@host, @port)
+      @http.use_ssl = true
+      @http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless verify
+      @http.open_timeout = @timeout if @timeout
+      @http.start do |h|
+        return h.peer_cert
+      end
+    rescue Exception => e
+      if verify == true
+        @ssl_error = e.message.gsub(/"/, "'")
+        # Trying one more time, this time not verifying the SSL Certificate
+        get_cert(verify: false)
+      else
+        # Mark test as skipped if we can't get an SSL certificate
+        return skip_resource "Cannot connect to #{@host}:#{@port}, #{e.message}"
+      end
     end
   end
 

@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+return
+
 title 'Sample profile on how to use the ssl_certificate resource'
 
 control 'CHECK github.com' do
