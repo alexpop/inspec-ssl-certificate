@@ -1,12 +1,12 @@
 # encoding: utf-8
 
+# stop here for now
 return
 
 title 'Sample profile on how to use the ssl_certificate resource'
 
 control 'CHECK github.com' do
   impact 0.7
-  # title overrides skip_message in cli format
   title 'Verify github.com`s SSL certificate'
   end_of_the_world = Time.parse('2020-02-20 20:20:20 UTC')
   # Uses the custom ssl_certificate InSpec resource from ../libraries/
@@ -48,15 +48,11 @@ end
 control 'CHECK sha1-2016.badssl.com' do
   impact 0.9
   title 'Verify an sha1 SSL certificate'
-  # Uses the custom ssl_certificate InSpec resource from ../libraries/
   describe ssl_certificate(host: 'sha1-2016.badssl.com', port: 443) do
     it { should exist }
     its('hash_algorithm') { should cmp 'SHA1' }
   end
 end
-
-# stop here for now
-return
 
 control 'CHECK bla.badssl.com:44333' do
   impact 0.9

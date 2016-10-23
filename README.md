@@ -1,12 +1,18 @@
-# InSpec ssl_certificate profile
+# SSL Certificate - InSpec Profile
 
-A library InSpec compliance profile containing an ssl_certificate resource that allows you to validate your SSL Certificates for properties like: key size, hash algorithm, days before expire, existence, trust, etc
+## Description
+
+A library InSpec compliance profile containing an `ssl_certificate` resource that allows you to validate your SSL Certificates for properties like: key size, hash algorithm, days before expire, existence, trust, etc. Unless you specify a path to the certificate file on the node, the `ssl_certificate` resource will retrieve the certificate via an HTTPS request from the machine where InSpec is executed.
 
 The controls you find in the `./controls` directory are sample ones to demonstrate how to use the `ssl_certificate` resource.
 
+## Requirements
+
+* [InSpec](https://github.com/chef/inspec) version 1.0 or above
+
 ## Usage
 
-- Add this to your profile's inspec.yml to ensure a correct inspec version and define the profile dependency:
+- Add this to your profile's `inspec.yml` to ensure a correct InSpec version and define the profile dependency:
 
 ```yaml
 supports:
@@ -16,6 +22,8 @@ depends:
     git: https://github.com/alexpop/ssl-certificate-profile
     version: '~> 0.1'
 ```
+
+### Examples
 
 - Use the `ssl_certificate` resource in your profiles, the same way you'd use core InSpec resources like file, service, command, etc.
 
@@ -59,3 +67,40 @@ control 'CHECK github.com' do
   end
 end
 ```
+
+
+### `ssl_certificate` resource parameters
+
+Name | Required | Type | Description
+--- | --- | --- | --
+path | no | String | Allows to specify a certificate file on the target node. No HTTPS request will be done so the parameters below are not used if this is defined.
+host | no | String | Resolvable hostname or IP for the HTTPS request used to retrieve the SSL Certificate information. Defaults to the InSpec target host if not specified.
+port | no | Numeric | Port for the HTTPS request, defaults to 443 if not specified.
+timeout | no | Numeric | Number of seconds to wait for the connection to open. The default value is 60 seconds.
+
+Examples of instantiating the resource with a Hash of the above parameters:
+```ruby
+describe ssl_certificate(version: '2016-06-30', timeout: 3, curl_path: '/usr/bin/curl') do
+  it { should exist }
+end
+# or via the path parameter
+describe ssl_certificate(path: '/etc/httpd/ssl/cert.crt') do
+  its('key_size') { should be >= 2048 }
+end
+```
+
+## License and Author
+
+* Author: Alex Pop [alexpop](https://github.com/alexpop)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
