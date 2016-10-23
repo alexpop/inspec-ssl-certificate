@@ -72,7 +72,7 @@ end
 ### `ssl_certificate` resource parameters
 
 Name | Required | Type | Description
---- | --- | --- | --
+--- | --- | --- | ---
 path | no | String | Allows to specify a certificate file on the target node. No HTTPS request will be done so the parameters below are not used if this is defined.
 host | no | String | Resolvable hostname or IP for the HTTPS request used to retrieve the SSL Certificate information. Defaults to the InSpec target host if not specified.
 port | no | Numeric | Port for the HTTPS request, defaults to 443 if not specified.
