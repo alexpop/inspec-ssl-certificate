@@ -69,7 +69,7 @@ end
 ```
 
 
-### `ssl_certificate` resource parameters
+### `ssl_certificate` resource parameters:
 
 Name | Required | Type | Description
 --- | --- | --- | ---
@@ -79,6 +79,7 @@ port | no | Numeric | Port for the HTTPS request, defaults to 443 if not specifi
 timeout | no | Numeric | Number of seconds to wait for the connection to open. The default value is 60 seconds.
 
 Examples of instantiating the resource with a Hash of the above parameters:
+
 ```ruby
 describe ssl_certificate(version: '2016-06-30', timeout: 3, curl_path: '/usr/bin/curl') do
   it { should exist }
