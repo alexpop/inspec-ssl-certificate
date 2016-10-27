@@ -140,6 +140,7 @@ class SslCertificate < Inspec.resource(1)
       @http.use_ssl = true
       @http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless verify
       @http.open_timeout = @timeout if @timeout
+      @http.ssl_version = :SSLv3 if inspec.ssl(host: @host, port: @port).protocols("ssl3").enabled?
       @http.start do |h|
         return h.peer_cert
       end
