@@ -54,6 +54,7 @@ end
 # discovered tcp ports and the ssl enabled ones. Always succeeds
 control 'debugging' do
   title "Inspec::Version=#{Inspec::VERSION}"
+  desc "Used to export some useful information for troubleshooting purposes."
   impact 0.0
   describe "tcpports=\n#{tcpports.join("\n")}" do
     it { should_not eq nil }
