@@ -68,24 +68,11 @@ class SslCertificate < Inspec.resource(1)
     else
       return skip_resource "Unsupported parameter #{opts.inspect}. Must be a Hash, for example: ssl_certificate(host: 'github.com', port: 443)"
     end
-
-    if @path
-      # read the file from the target(local or remote node)
-      cert_file = inspec.file(@path)
-      return skip_resource "File missing at path: #{@path}" unless cert_file.exist?
-      @cert = OpenSSL::X509::Certificate.new(cert_file.content)
-    else
-      @host = get_hostname
-      if @host.nil?
-        return skip_resource "Cannot determine hostname to check for inspec.backend(#{inspec.backend.class.to_s}). Please specify a :host parameter"
-      end
-      @cert = get_cert(verify: true)
-    end
   end
 
   # Called by: it { should exist }
   def exists?
-    return @cert.class == OpenSSL::X509::Certificate
+    return cert.class == OpenSSL::X509::Certificate
   end
 
   # Called by: it { should be_trusted }
@@ -95,36 +82,36 @@ class SslCertificate < Inspec.resource(1)
 
   # Called by: its('signature_algorithm') { should eq 'something' }
   def signature_algorithm
-    @cert.signature_algorithm
+    cert.signature_algorithm
   end
 
   def issuer
-    @cert.issuer.to_s
+    cert.issuer.to_s
   end
 
   def subject
-     @cert.subject.to_s
+     cert.subject.to_s
   end
 
   def hash_algorithm
-    return @cert.signature_algorithm[/^(.+?)with/i,1].upcase
+    return cert.signature_algorithm[/^(.+?)with/i,1].upcase
   end
 
   def key_algorithm
-    return @cert.signature_algorithm[/with(.+)encryption$/i,1].upcase
+    return cert.signature_algorithm[/with(.+)encryption$/i,1].upcase
   end
 
   # Public key size in bits
   def key_size
-    @cert.public_key.n.num_bytes * 8
+    cert.public_key.n.num_bytes * 8
   end
 
   def expiration_days
-    return ((@cert.not_after - Time.now) / 86_400).to_i
+    return ((cert.not_after - Time.now) / 86_400).to_i
   end
 
   def expiration
-    return @cert.not_after
+    return cert.not_after
   end
 
   def to_s
@@ -132,6 +119,25 @@ class SslCertificate < Inspec.resource(1)
   end
 
   private
+
+  # Return the ssl object if there's one, if not instanciate it
+  # Helps by not doing it in initialize to keep `inspec check` runs quick
+  def cert
+    return @cert_obj unless @cert_obj.nil?
+    if @path
+      # read the file from the target(local or remote node)
+      cert_file = inspec.file(@path)
+      return skip_resource "File missing at path: #{@path}" unless cert_file.exist?
+      @cert_obj = OpenSSL::X509::Certificate.new(cert_file.content)
+    else
+      @host = get_hostname
+      if @host.nil?
+        return skip_resource "Cannot determine hostname to check for inspec.backend(#{inspec.backend.class.to_s}). Please specify a :host parameter"
+      end
+      @cert_obj = get_cert(verify: true)
+    end
+    @cert_obj
+  end
 
   # Retrieve an OpenSSL::X509::Certificate via TCP
   def get_cert(verify: true)
