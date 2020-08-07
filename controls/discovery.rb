@@ -71,7 +71,6 @@ sslports.each do |sslport|
     impact 1.0
     describe ssl_certificate(sslport) do
       it { should exist }
-      its('key_size') { should be >= 2048 }
       its('expiration_days') { should be >= 60 }
     end
   end

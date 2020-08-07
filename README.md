@@ -20,7 +20,7 @@ supports:
 depends:
   - name: ssl-certificate-profile
     git: https://github.com/alexpop/ssl-certificate-profile
-    version: '~> 0.1'
+    version: '~> 1.0'
 ```
 
 ### Examples
@@ -37,8 +37,6 @@ control 'CHECK github.com' do
     it { should be_trusted }
     its('ssl_error') { should eq nil }
     its('signature_algorithm') { should eq 'sha256WithRSAEncryption' }
-    its('key_algorithm') { should eq 'RSA' }
-    its('key_size') { should be >= 2048 }
     its('hash_algorithm') { should cmp /SHA(256|384|512)/ }
     its('expiration_days') { should be >= 30 }
   end
@@ -53,7 +51,6 @@ control 'CHECK cert using path' do
   end
   describe ssl_certificate(path: '/etc/httpd/ssl/cert.crt') do
     it { should exist }
-    its('key_size') { should be >= 2048 }
   end
 end
 
@@ -63,7 +60,6 @@ control 'CHECK github.com' do
   title 'Verify target`s SSL certificate'
   describe ssl_certificate(port: 443) do
     it { should exist }
-    its('key_size') { should be >= 2048 }
   end
 end
 ```
@@ -86,7 +82,7 @@ describe ssl_certificate(version: '2016-06-30', timeout: 3, curl_path: '/usr/bin
 end
 # or via the path parameter
 describe ssl_certificate(path: '/etc/httpd/ssl/cert.crt') do
-  its('key_size') { should be >= 2048 }
+  its('expiration_days') { should be >= 30 }
 end
 ```
 

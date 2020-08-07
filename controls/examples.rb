@@ -8,19 +8,16 @@ title 'Sample profile on how to use the ssl_certificate resource'
 control 'CHECK github.com' do
   impact 0.7
   title 'Verify github.com`s SSL certificate'
-  end_of_the_world = Time.parse('2020-02-20 20:20:20 UTC')
+  one_day = Time.parse('2022-02-02 20:20:20 UTC')
   # Uses the custom ssl_certificate InSpec resource from ../libraries/
   describe ssl_certificate(host: 'github.com', port: 443) do
     it { should exist }
     it { should be_trusted }
     its('ssl_error') { should eq nil }
     its('signature_algorithm') { should eq 'sha256WithRSAEncryption' }
-    its('key_algorithm') { should eq 'RSA' }
-    its('key_size') { should be >= 2048 }
     its('hash_algorithm') { should cmp /SHA(256|384|512)/ }
-    #its('hash_size') { should be >= 256 }
     its('expiration_days') { should be >= 30 }
-    its('expiration') { should be < end_of_the_world }
+    its('expiration') { should be < one_day }
   end
 end
 
@@ -67,7 +64,6 @@ control 'CHECK cert at path' do
   title 'Verify SSL certificate from a path'
   describe ssl_certificate(path: '/etc/httpd/ssl/cert.crt') do
     it { should exist }
-    its('key_size') { should be >= 2048 }
   end
 end
 

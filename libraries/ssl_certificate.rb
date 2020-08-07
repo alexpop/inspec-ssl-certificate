@@ -34,7 +34,6 @@ class SslCertificate < Inspec.resource(1)
     describe ssl_certificate do
       it { should exist }
       its('signature_algorithm' { should cmp 'sha256WithRSAEncryption' }
-      its('key_size') { should be >= 2048 }
     end
 
     # Be explicit with the targeted host and port
@@ -43,11 +42,9 @@ class SslCertificate < Inspec.resource(1)
       it { should be_trusted }
       its('ssl_error') { should eq nil }
       its('signature_algorithm') { should eq 'sha256WithRSAEncryption' }
-      its('key_algorithm') { should eq 'RSA' }
-      its('key_size') { should be >= 2048 }
       its('hash_algorithm') { should cmp /SHA(256|384|512)/ }
       its('expiration_days') { should be >= 30 }
-      its('expiration') { should be < end_of_the_world }
+      its('expiration') { should be < SOME_DATE }
     end
   "
 
@@ -97,16 +94,8 @@ class SslCertificate < Inspec.resource(1)
     return cert.signature_algorithm.gsub(/.*(sha)-?(\d+).*/i, '\1\2').upcase if defined?(cert.signature_algorithm)
   end
 
-  def key_algorithm
-    algo = cert.signature_algorithm[/with(.+)encryption$/i,1]
-    return algo.upcase unless algo.nil?
-    algo = cert.signature_algorithm[/-with-([^\d]+)/i,1]
-    return algo.upcase unless algo.nil?
-  end
-
-  # Public key size in bits
-  def key_size
-    cert.public_key.n.num_bytes * 8 if defined?(cert.public_key.n) && defined?(cert.public_key.n.num_bytes)
+  def signature_algorithm
+    cert.signature_algorithm
   end
 
   def expiration_days
