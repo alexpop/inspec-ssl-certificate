@@ -94,16 +94,19 @@ class SslCertificate < Inspec.resource(1)
   end
 
   def hash_algorithm
-    return cert.signature_algorithm[/^(.+?)with/i,1].upcase
+    return cert.signature_algorithm.gsub(/.*(sha)-?(\d+).*/i, '\1\2').upcase if defined?(cert.signature_algorithm)
   end
 
   def key_algorithm
-    return cert.signature_algorithm[/with(.+)encryption$/i,1].upcase
+    algo = cert.signature_algorithm[/with(.+)encryption$/i,1]
+    return algo.upcase unless algo.nil?
+    algo = cert.signature_algorithm[/-with-([^\d]+)/i,1]
+    return algo.upcase unless algo.nil?
   end
 
   # Public key size in bits
   def key_size
-    cert.public_key.n.num_bytes * 8
+    cert.public_key.n.num_bytes * 8 if defined?(cert.public_key.n) && defined?(cert.public_key.n.num_bytes)
   end
 
   def expiration_days
