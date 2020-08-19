@@ -43,8 +43,9 @@ class SslCertificate < Inspec.resource(1)
       its('ssl_error') { should eq nil }
       its('signature_algorithm') { should eq 'sha256WithRSAEncryption' }
       its('hash_algorithm') { should cmp /SHA(256|384|512)/ }
+      its('issuer') { should match /^\/C=US\/O=Cloudflare, Inc/ }
       its('expiration_days') { should be >= 30 }
-      its('expiration') { should be < SOME_DATE }
+      its('expiration') { should be > SOME_DATE }
     end
   "
 
@@ -107,7 +108,7 @@ class SslCertificate < Inspec.resource(1)
   end
 
   def to_s
-    return "ssl_certificate on #{@host}:#{@port}"
+    return "ssl_certificate on '#{@host}:#{@port}'"
   end
 
   private
