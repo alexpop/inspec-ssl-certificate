@@ -5,4 +5,4 @@ copyright: Alex Pop
 copyright_email: not-given-here@example.com
 license: Apache 2 license
 summary: InSpec profile providing an ssl_certificate resource and sample controls
-version: 1.1.1
+version: 1.2.0

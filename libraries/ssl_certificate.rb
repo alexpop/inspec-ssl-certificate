@@ -43,7 +43,12 @@ class SslCertificate < Inspec.resource(1)
       its('ssl_error') { should eq nil }
       its('signature_algorithm') { should eq 'sha256WithRSAEncryption' }
       its('hash_algorithm') { should cmp /SHA(256|384|512)/ }
-      its('issuer') { should match /^\/C=US\/O=Cloudflare, Inc/ }
+      its('issuer_organization') { should match /^(Amazon|Let's Encrypt)/ }
+      its('issuer_country') { should eq 'GB' }
+      its('issuer_locality') { should eq 'Salford' }
+      its('issuer_state') { should eq 'Greater Manchester' }
+      its('issuer_organizational_unit') { should eq 'Server CA 1B' }
+      its('issuer_common_name') { should eq 'COMODO RSA Domain Validation Secure Server CA' }
       its('expiration_days') { should be >= 30 }
       its('expiration') { should be > SOME_DATE }
     end
@@ -83,12 +88,34 @@ class SslCertificate < Inspec.resource(1)
     cert.signature_algorithm
   end
 
+  # Will return the full issuer string, for example:
+  # /C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO RSA Domain Validation Secure Server CA
   def issuer
     cert.issuer.to_s
   end
 
+  # The issuer_* methods below extract a specific attribute (Organization) from the full issuer string
+  def issuer_country
+    issuer_attribute('C')
+  end
+  def issuer_state
+    issuer_attribute('ST') || issuer_attribute('S')
+  end
+  def issuer_locality
+    issuer_attribute('L')
+  end
+  def issuer_organization
+    issuer_attribute('O')
+  end
+  def issuer_common_name
+    issuer_attribute('CN')
+  end
+  def issuer_organizational_unit
+    issuer_attribute('OU')
+  end
+
   def subject
-     cert.subject.to_s
+    cert.subject.to_s
   end
 
   def hash_algorithm
@@ -112,6 +139,10 @@ class SslCertificate < Inspec.resource(1)
   end
 
   private
+
+  def issuer_attribute(attr)
+    issuer[/\/#{attr}=([^\/]+)/,1]
+  end
 
   # Return the ssl object if there's one, if not instanciate it
   # Helps by not doing it in initialize to keep `inspec check` runs quick
