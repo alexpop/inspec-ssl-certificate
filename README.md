@@ -15,12 +15,10 @@ The controls you find in the `./controls` directory are sample ones to demonstra
 - Add this to your profile's `inspec.yml` to ensure a correct InSpec version and define the profile dependency:
 
 ```yaml
-supports:
-  - inspec: '~> 1.0'
 depends:
-  - name: ssl-certificate-profile
-    git: https://github.com/alexpop/ssl-certificate-profile
-    version: '~> 1.0'
+- name: ssl-certificate-profile
+  git: https://github.com/alexpop/ssl-certificate-profile
+  version: '~> 1.0'
 ```
 
 ### Examples
@@ -38,7 +36,8 @@ control 'CHECK github.com' do
     its('ssl_error') { should eq nil }
     its('signature_algorithm') { should eq 'sha256WithRSAEncryption' }
     its('hash_algorithm') { should cmp /SHA(256|384|512)/ }
-    its('expiration_days') { should be >= 30 }
+    its('issuer_organization') { should be_in ['Amazon', 'COMODO CA Limited'] }
+    its('expiration_days') { should be > 30 }
   end
 end
 
