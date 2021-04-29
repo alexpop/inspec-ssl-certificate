@@ -135,6 +135,8 @@ class SslCertificate < Inspec.resource(1)
   end
 
   def to_s
+    return @path if @path
+
     p = (@port == 443 ? '' : ":#{@port}")
     return "ssl_certificate for '#{@host}#{p}'"
   end
